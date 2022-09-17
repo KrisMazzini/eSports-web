@@ -1,9 +1,10 @@
 import * as Dialog from '@radix-ui/react-dialog'
+import * as Checkbox from '@radix-ui/react-checkbox'
 
 import { Input } from './Form/Input'
 import { WeekDay } from './Form/WeekDay'
 
-import { GameController } from 'phosphor-react'
+import { Check, GameController } from 'phosphor-react'
 
 export function CreateAdModal() {
     const weekDays = [
@@ -63,7 +64,11 @@ export function CreateAdModal() {
                 </div>
 
                 <div className='mt-2 flex gap-2 items-center text-sm'>
-                  <Input type="checkbox"/>
+                  <Checkbox.Root className='w-6 h-6 p-1 rounded bg-zinc-900'>
+                    <Checkbox.Indicator>
+                      <Check className='w-4 h-4 text-emerald-400'/>
+                    </Checkbox.Indicator>
+                  </Checkbox.Root>
                   I'm usually connected to voice channel
                 </div>
 
