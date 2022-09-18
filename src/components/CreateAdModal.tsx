@@ -4,33 +4,21 @@ import axios from 'axios'
 import * as Dialog from '@radix-ui/react-dialog'
 import * as Checkbox from '@radix-ui/react-checkbox'
 
+import { Game } from '../App'
 import { Input } from './Form/Input'
 import { WeekDay } from './Form/WeekDay'
 
 import { Check, GameController } from 'phosphor-react'
 
-interface Game {
-  id: string;
-  title: string;
+interface AdModalProps {
+  games: Game[]
 }
 
-export function CreateAdModal() {
+export function CreateAdModal({games}:AdModalProps) {
     const weekDays = [
         "sunday", "monday", "tuesday",
         "wednesday", "thursday", "friday", "saturday"
     ]
-
-    const [games, setGames] = useState<Game[]>([])
-
-    useEffect(() => {
-      async function handleGames() {
-        const gamesResponse = await axios.get('http://localhost:8080/games');
-        const data = gamesResponse.data as Game[];
-        setGames(data?.slice(0,6))
-      }
-
-      handleGames()
-    }, [])
 
     return (
         <Dialog.Portal>
