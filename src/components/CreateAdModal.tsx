@@ -1,3 +1,6 @@
+import { useEffect, useState } from 'react'
+import axios from 'axios'
+
 import * as Dialog from '@radix-ui/react-dialog'
 import * as Checkbox from '@radix-ui/react-checkbox'
 
@@ -6,11 +9,28 @@ import { WeekDay } from './Form/WeekDay'
 
 import { Check, GameController } from 'phosphor-react'
 
+interface Game {
+  id: string;
+  title: string;
+}
+
 export function CreateAdModal() {
     const weekDays = [
         "sunday", "monday", "tuesday",
         "wednesday", "thursday", "friday", "saturday"
     ]
+
+    const [games, setGames] = useState<Game[]>([])
+
+    useEffect(() => {
+      async function handleGames() {
+        const gamesResponse = await axios.get('http://localhost:8080/games');
+        const data = gamesResponse.data as Game[];
+        setGames(data?.slice(0,6))
+      }
+
+      handleGames()
+    }, [])
 
     return (
         <Dialog.Portal>
@@ -21,7 +41,17 @@ export function CreateAdModal() {
 
                 <div className='flex flex-col gap-2'>
                   <label htmlFor="game" className='font-semibold'>Which game?</label>
-                  <Input id="game" placeholder="Choose the game you wanna play"/>
+                  <select 
+                    id="game" 
+                    className='bg-zinc-900 py-3 px-4 rounded text-sm appearance-none'
+                  >
+                    <option disabled selected value="">Choose the game you wanna play</option>
+                    {
+                      games?.map(game => {
+                        return <option key={game.id} value={game.id}>{game.title}</option>
+                      })
+                    }
+                  </select>
                 </div>
 
                 <div className='flex flex-col gap-2'>
