@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, FormEvent } from 'react'
+import axios from 'axios'
 
 import * as Dialog from '@radix-ui/react-dialog'
 import * as Checkbox from '@radix-ui/react-checkbox'
@@ -17,17 +18,53 @@ interface AdModalProps {
 
 export function CreateAdModal({games}:AdModalProps) {
   const [selectedWeekDays, setSelectedWeekDays] = useState<string[]>([])
+  const [useVoiceChannel, setUseVoiceChannel] = useState<boolean>(false)
+
+  async function handleCreateAd(event:FormEvent) {
+    event.preventDefault();
+
+    const formData = new FormData(event.target as HTMLFormElement)
+    const data = Object.fromEntries(formData)
+
+    if (!data.name || !data.game) return;
+
+    try {
+      await axios.post(`http://localhost:8080/games/${data.game}/ads`, {
+        name: data.name,
+        yearsPlaying: Number(data.yearsPlaying),
+        discord: data.discord,
+        weekDays: selectedWeekDays.map(Number),
+        hourStart: data.hourStart,
+        hourEnd: data.hourEnd,
+        useVoiceChannel: useVoiceChannel,
+      })
+
+      alert('Ad created successfully!')
+    } catch(e) {
+      alert('Failed to create ad!')
+      console.error(e)
+    }
+
+    console.log(data)
+    console.log(selectedWeekDays)
+    console.log(useVoiceChannel)
+  }
+
+  async function createAd() {
+    
+  }
   
   return (
     <Dialog.Portal>
       <Dialog.Overlay className='bg-black/60 inset-0 fixed'/>
       <Dialog.Content className='fixed bg-[#2A2634] py-8 px-10 text-white top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg w-[480px] shadow-lg shadow-black/25'>
         <Dialog.Title className='text-3xl font-black'>Publish an ad</Dialog.Title>
-          <form className='mt-8 flex flex-col gap-4'>
+          <form onSubmit={handleCreateAd} className='mt-8 flex flex-col gap-4'>
 
             <div className='flex flex-col gap-2'>
               <label htmlFor="game" className='font-semibold'>Which game?</label>
               <select 
+                name="game"
                 id="game" 
                 className='bg-zinc-900 py-3 px-4 rounded text-sm appearance-none'
                 defaultValue=""
@@ -43,18 +80,18 @@ export function CreateAdModal({games}:AdModalProps) {
 
             <div className='flex flex-col gap-2'>
               <label htmlFor="name">Your name (or nickname)</label>
-              <Input id="name" placeholder="How people call you within the game?"/>
+              <Input name="name" id="name" placeholder="How people call you within the game?"/>
             </div>
 
             <div className='grid grid-cols-2 gap-6'>
               <div className='flex flex-col gap-2'>
                 <label htmlFor="yearsPlaying">Playing for how long?</label>
-                <Input id="yearsPlaying" type="number" placeholder="Years"/>
+                <Input name="yearsPlaying" id="yearsPlaying" type="number" placeholder="Years"/>
               </div>
 
               <div className='flex flex-col gap-2'>
                 <label htmlFor="discord">What's your Discord?</label>
-                <Input id="discord" placeholder="User#0000" />
+                <Input name="discord" id="discord" placeholder="User#0000" />
               </div>
             </div>
 
@@ -86,14 +123,18 @@ export function CreateAdModal({games}:AdModalProps) {
               <div className='flex flex-col gap-2 flex-1'>
                 <label htmlFor="hourStart">At what time?</label>
                 <div className='grid grid-cols-2 gap-2'>
-                  <Input id="hourStart" type="time" placeholder="From"/>
-                  <Input id="hourEnd" type="time" placeholder="Until"/>
+                  <Input name="hourStart" id="hourStart" type="time" placeholder="From"/>
+                  <Input name="hourEnd" id="hourEnd" type="time" placeholder="Until"/>
                 </div>
               </div>
             </div>
 
             <label className='mt-2 flex gap-2 items-center text-sm'>
-              <Checkbox.Root className='w-6 h-6 p-1 rounded bg-zinc-900'>
+              <Checkbox.Root 
+                className='w-6 h-6 p-1 rounded bg-zinc-900'
+                checked={useVoiceChannel}
+                onCheckedChange={(checked) => setUseVoiceChannel(checked ? true : false)}
+              >
                 <Checkbox.Indicator>
                   <Check className='w-4 h-4 text-emerald-400'/>
                 </Checkbox.Indicator>
